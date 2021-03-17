@@ -11,15 +11,13 @@ public class App {
 	static final int PORT = 14147;
 	static final String HOST = "localhost";
 	static final String USER = "scalahorra";
-	static final String PASSWORD = "admin";
+	static final String PASSWORD = "";
 	
 	public static void main(String[] args) throws SocketException, IOException {
 		
-		int opcion;
+		int opcion = 0;
 		
 		FTPClient ftpClient = new FTPClient();
-			
-		boolean login;
 		
 		do {
 			
@@ -35,41 +33,47 @@ public class App {
 			System.out.println("9. Cambiar directorio actual");
 			System.out.println("0. Salir");
 			
-			Scanner scanner = new Scanner(System.in);
-			opcion = scanner.nextInt();
+			opcion = Leer.pedirEnteroValidar();
 			
 			switch (opcion) {
 			
 			
 			case 1:
+				//Iniciar sesión
 				
 				ftpClient.connect(HOST);
 				
-				String borrar = scanner.nextLine();
 				System.out.println("Introduzca su usuario");
-				String usuario = scanner.nextLine();
+				String usuario = Leer.pedirCadena();
 				
 				System.out.println("Intruzca su contraseña");
-				String contrasena = scanner.nextLine();
+				String contrasena = Leer.pedirCadena();
+		
 				
-				System.out.println(usuario + "." + contrasena + ".");
+				boolean login;
 				
 				if (usuario == USER && contrasena == PASSWORD) {
 										
-					login = ftpClient.login(USER,PASSWORD);
+					login = ftpClient.login(USER, PASSWORD);
 					
-					System.out.println("Inicio de sesión correcto");
 				}
 				else {
 					
-					System.out.println("Usuario y/o contraseña incorrectos");
+					login = ftpClient.login(usuario,  contrasena);
 					
+				}
+				
+				if(login) {
+					System.out.println("Login correcto");
+				} else {
+					System.out.println("Login incorrecto");
 				}
 				
 				break;
 				
 				
 			case 2:
+				//Desconexion
 				
 				ftpClient.logout();
 				ftpClient.disconnect();
@@ -79,51 +83,124 @@ public class App {
 				
 				
 			case 3:
+				//Lista los elementos 
 				
+				FTPFile[] files = ftpClient.listFiles();
+				
+				System.out.println("Actualmente hay " + files.length + " ficheros en este directorio");
+				
+				for (int i=0; i<files.length; i++) {
 					
+					System.out.println(files[i]);
+				}
 				
 				break;
 				
 				
 			case 4: 
+				//Subida de fichero
 
-				//Comprobamos que el usuario este logeado
-				if (login = true) {
+				System.out.println("Escriba el nombre del fichero que quiera subir");
+				
+				String nombreFichero = Leer.pedirCadena();
+				
+				System.out.println("Escriba la ruta de dónde lo quire subir");
+				String ruta = Leer.pedirCadena();
+				
+				System.out.println(ruta);
+				
+				FileInputStream fis = new FileInputStream(ruta + nombreFichero);
+				
+				boolean subirArchivo = ftpClient.storeFile(nombreFichero, fis);
+				
+				if(subirArchivo == true) {
 					
-					//Seleccionamos las caracteristicas del archivo
-					ftpClient.setFileType(FTP.BINARY_FILE_TYPE, FTP.BINARY_FILE_TYPE);
-		            ftpClient.setFileTransferMode(FTP.BINARY_FILE_TYPE);
-		            ftpClient.enterLocalPassiveMode();
-		 
-		            //Le decimos el nombre del archivo
-		            String filename = "C://Users//Sergio//Documents//eclipse-workspace//miarchivo.txt";
-		 
-		            //Metemos el archivo
-		            FileInputStream fis = new FileInputStream(filename);
-		 
-		            //Guardamos el archivo
-		            ftpClient.storeFile(filename, fis);
-		            
-		            fis.close();
+					System.out.println("Subida realizada con éxito");
+				} else {
+					
+					System.out.println("Ocurrió un problema al subir el archivo");
 				}
 				
 				break;
 				
 				
 			case 5:
+				//Descarga de ficheros
 				
-				if (login = true) {
+				System.out.println("Escriba el nombre del fichero que se quiere descargar");
+				String nombreFicheroDescargar = Leer.pedirCadena();
 				
-					String archivo = "/archivo.doc";
-					System.out.println("Escriba el nombre del fichero que quiere descargar");
-					archivo = scanner.nextLine();
+				File archivoDescarga = new File("C:\\Users\\Desktop\\compartir");
+				
+				OutputStream os = new BufferedOutputStream(new FileOutputStream(archivoDescarga + "\\" + nombreFicheroDescargar));
+				
+				boolean descargarArchivo = ftpClient.retrieveFile(nombreFicheroDescargar, os);
+				
+				os.close();
+				
+				if(descargarArchivo) {
 					
+					System.out.println("Archivo descargado correctamente");
+				} else {
 					
-					FileOutputStream fos = new FileOutputStream("archivoLocal");
-
-					ftpClient.retrieveFile(archivo, fos);
-					fos.close(); 
+					System.out.println("Ocurrió un problema al descargar el archivo");
 				}
+				
+				break;
+				
+			case 6:
+				//Eliminacion de ficheros
+				
+				System.out.println("Escriba el nombre del fichero que desea eliminar");
+				String ficheroEliminar = Leer.pedirCadena();
+				
+				boolean eliminacion = ftpClient.deleteFile("\\" + ficheroEliminar);
+				
+				if(eliminacion) {
+					
+					System.out.println("Fichero eliminado correctamente");
+				}else {
+					
+					System.out.println("Ocurrió un problema al eliminar el archivo");
+				}
+				
+				break;
+				
+			case 7:
+				//Eliminacion de directorios
+				
+				System.out.println("Escriba el nombre del directorio que desea eliminar");
+				String directorioEliminar = Leer.pedirCadena();
+				
+				boolean eliminacionDir = ftpClient.removeDirectory(directorioEliminar);
+				
+				if(eliminacionDir) {
+					
+					System.out.println("Directorio eliminado correctamente");
+				}else {
+					
+					System.out.println("Ocurrió un problema al eliminar el directorio");
+				}
+				
+				break;
+				
+			case 8:
+				//Creacion de directorios
+				
+				System.out.println("Escriba el nombre del directorio que desea crear");
+				String directorioCrear = Leer.pedirCadena();
+				
+				boolean creacion = ftpClient.makeDirectory(directorioCrear);
+				
+				if(creacion) {
+					
+					System.out.println("Directorio creado correctamente");
+				}else {
+					
+					System.out.println("Ocurrió un problema al crear el directorio");
+				}
+				
+				break;
 				
 			}
 			
