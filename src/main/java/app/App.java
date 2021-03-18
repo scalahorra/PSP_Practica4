@@ -8,10 +8,10 @@ import org.apache.commons.net.ftp.*;
 
 public class App {
 
-	static final int PORT = 14147;
-	static final String HOST = "localhost";
-	static final String USER = "scalahorra";
-	static final String PASSWORD = "";
+	static final int PUERTO = 14147;
+	static final String SERVIDOR = "localhost";
+	static final String USUARIO = "scalahorra";
+	static final String CONTRASENA = "";
 	
 	public static void main(String[] args) throws SocketException, IOException {
 		
@@ -41,7 +41,7 @@ public class App {
 			case 1:
 				//Iniciar sesión
 				
-				ftpClient.connect(HOST);
+				ftpClient.connect(SERVIDOR);
 				
 				System.out.println("Introduzca su usuario");
 				String usuario = Leer.pedirCadena();
@@ -52,9 +52,9 @@ public class App {
 				
 				boolean login;
 				
-				if (usuario == USER && contrasena == PASSWORD) {
+				if (usuario == USUARIO && contrasena == CONTRASENA) {
 										
-					login = ftpClient.login(USER, PASSWORD);
+					login = ftpClient.login(USUARIO, CONTRASENA);
 					
 				}
 				else {
@@ -130,7 +130,7 @@ public class App {
 				System.out.println("Escriba el nombre del fichero que se quiere descargar");
 				String nombreFicheroDescargar = Leer.pedirCadena();
 				
-				File archivoDescarga = new File("C:\\Users\\Desktop\\compartir");
+				File archivoDescarga = new File("C:\\Users\\Sergio\\Desktop\\Subir");
 				
 				OutputStream os = new BufferedOutputStream(new FileOutputStream(archivoDescarga + "\\" + nombreFicheroDescargar));
 				
